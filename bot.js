@@ -36,7 +36,7 @@ async function CariBarangDariIDSheet(kode) {
     const kodeDicari = kode.trim().toLowerCase();
     for (let row of dataBarang) {
         if (row[0] && row[0].trim().toLowerCase() === kodeDicari) {
-            return 🏢 Sales: ${row[3]}
+            return `🏢 Sales: ${row[3]}
             📅 Update Data: ${row[4]}
             
             ==== PERFORMAN SA ====
