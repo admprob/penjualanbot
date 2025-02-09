@@ -1,5 +1,5 @@
 {
-  "name": "bot-wa-untuk-input-atau-daftar-ke-sps",
+  "name": "saved-pictures",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -8,13 +8,12 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "description": "",
   "dependencies": {
     "@whiskeysockets/baileys": "^6.7.12",
     "axios": "^1.7.9",
     "dotenv": "^16.4.7",
-    "qrcode-terminal": "^0.12.0",
-    "googleapis": "^144.0.0"
+    "googleapis": "^144.0.0",
+    "qrcode-terminal": "^0.12.0"
   }
 }
