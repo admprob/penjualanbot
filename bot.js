@@ -90,7 +90,7 @@ async function CariBarangDariIDSheet(kode) {
             📌 Stock Tersedia: ${row[36]}`;
                     }
     }
-    return ❌ Kode "${kode}" tidak ditemukan di ${SHEET_NAME}.;
+    return `❌ Kode "${kode}" tidak ditemukan di ${SHEET_NAME}.`;
 }
 
 // 🔹 Fungsi mengirim OTP via Twilio
