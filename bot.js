@@ -99,7 +99,7 @@ async function sendOTPviaTwilio(phoneNumber, otp) {
         const message = await client.messages.create({
             from: process.env.TWILIO_WHATSAPP_NUMBER,
             to: `whatsapp:${phoneNumber}`,
-            body: Kode OTP Anda: ${otp},
+            body: `Kode OTP Anda: ${otp}`
         });
         console.log("✅ OTP Terkirim ke", phoneNumber);
     } catch (error) {
