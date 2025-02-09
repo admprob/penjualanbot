@@ -1,19 +1,21 @@
 const { default: makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion, DisconnectReason, delay } = require("@whiskeysockets/baileys");
 const { google } = require("googleapis");
+const qrcode = require("qrcode-terminal"); // ✅ Menampilkan QR lebih kecil
 require("dotenv").config();
 const axios = require("axios");
 
+// 🔹 Konfigurasi Google Sheets
 const sheets = google.sheets({ version: "v4", auth: process.env.GOOGLE_API_KEY });
 const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
 const SHEET_NAME = "Sheet1";
 
+// 🔹 Fungsi untuk mengambil data dari Google Sheets
 async function getSheetData() {
     try {
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
-            range: `${SHEET_NAME}!A:AH`, // ✅ Perbaikan error string interpolation
+            range: `${SHEET_NAME}!A:AH`,
         });
-        console.log("📊 Data Google Sheets berhasil diambil:", response.data.values); // Debugging
         return response.data.values || [];
     } catch (error) {
         console.error("❌ Error fetching data:", error);
@@ -21,13 +23,12 @@ async function getSheetData() {
     }
 }
 
-// Fungsi untuk mencari barang berdasarkan ID atau kode
+// 🔹 Fungsi untuk mencari barang berdasarkan kode
 async function CariBarangDariIDSheet(kode) {
     const dataBarang = await getSheetData();
     if (!dataBarang || dataBarang.length === 0) return "❌ Data tidak ditemukan.";
 
     const kodeDicari = kode.trim().toLowerCase();
-
     for (let row of dataBarang) {
         if (row[0] && row[0].trim().toLowerCase() === kodeDicari) {
             return `📦 Kode: ${row[0]}
@@ -85,9 +86,10 @@ async function CariBarangDariIDSheet(kode) {
 📌 Stock Tersedia: ${row[36]}`;
         }
     }
-    return `❌ Kode "${kode}" tidak ditemukan di ${SHEET_NAME}.`; // ✅ Perbaikan string template
+    return `❌ Kode "${kode}" tidak ditemukan di ${SHEET_NAME}.`;
 }
 
+// 🔹 Fungsi utama untuk menjalankan bot
 async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState("auth_info");
     const { version } = await fetchLatestBaileysVersion();
@@ -97,7 +99,13 @@ async function startBot() {
 
         sock.ev.on("creds.update", saveCreds);
         sock.ev.on("connection.update", async (update) => {
-            const { connection, lastDisconnect } = update;
+            const { connection, lastDisconnect, qr } = update;
+
+            if (qr) {
+                console.log("📸 Scan QR Code:");
+                qrcode.generate(qr, { small: true }); // ✅ Menampilkan QR dalam ukuran kecil
+            }
+
             if (connection === "close") {
                 const reason = lastDisconnect?.error?.output?.statusCode;
                 if (reason === DisconnectReason.loggedOut) {
@@ -114,8 +122,6 @@ async function startBot() {
 
         sock.ev.on("messages.upsert", async ({ messages }) => {
             const msg = messages[0];
-            console.log("📩 Pesan diterima:", msg);
-
             if (!msg.message || msg.key.fromMe) return;
 
             const text =
@@ -126,27 +132,9 @@ async function startBot() {
                 msg.message.documentMessage?.caption ||
                 "".trim();
 
-            console.log("🔍 Mencari kode:", text);
-
             if (!/^C\.\w+/.test(text)) return;
 
-            const isGroup = msg.key.remoteJid.endsWith("@g.us");
-            if (isGroup) {
-                try {
-                    const groupMeta = await sock.groupMetadata(msg.key.remoteJid);
-                    const isUserInGroup = groupMeta.participants.some(p => 
-                        p.id.split("@")[0] === sock.user.id.split(":")[0].split("@")[0]
-                    );
-
-                    if (!isUserInGroup) return;
-                } catch (error) {
-                    console.log("❌ Gagal mendapatkan info grup:", error);
-                    return;
-                }
-            }
-
             const result = await CariBarangDariIDSheet(text);
-            console.log("📊 Hasil Pencarian:", result);
             await sock.sendMessage(msg.key.remoteJid, { text: result });
         });
 
