@@ -19,7 +19,7 @@ async function getSheetData() {
     try {
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
-            range: ${SHEET_NAME}!A:AH,
+            range: `${SHEET_NAME}!A:AH`,
         });
         return response.data.values || [];
     } catch (error) {
