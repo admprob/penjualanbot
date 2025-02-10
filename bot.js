@@ -4,7 +4,6 @@ const qrcode = require("qrcode-terminal");
 require("dotenv").config();
 const axios = require("axios");
 const twilio = require("twilio");
-const readlineSync = require("readline-sync");
 
 // 🔹 Konfigurasi Twilio
 const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
